@@ -1,0 +1,8 @@
+### Test .exe ###
+*.exe
+
+### VS Code ###
+.vscode/
+
+### Test .cpp ###
+/*.cpp
