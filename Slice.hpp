@@ -91,6 +91,12 @@ namespace gtd {
         requires requires(typename cT::const_iterator iter, int64_t n) {
             { iter += n } -> std::same_as<typename cT::const_iterator&>;
         };
+        requires requires(typename cT::const_iterator iter, typename cT::const_iterator iter1) {
+            { iter < iter1 } -> std::same_as<bool>;
+        };
+        requires requires(typename cT::const_iterator iter, typename cT::const_iterator iter1) {
+            { iter > iter1 } -> std::same_as<bool>;
+        };
     }
     #endif
     class slice {
