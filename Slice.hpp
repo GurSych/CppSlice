@@ -84,6 +84,15 @@ namespace gtd {
         }
     };
     template <typename cT>
+    #if __cplusplus >= 202002L
+    requires requires(cT container) {
+        typename cT::const_iterator;
+        typename cT::const_reverse_iterator;
+        requires requires(typename cT::const_iterator iter, int64_t n) {
+            { iter += n } -> std::same_as<typename cT::const_iterator&>;
+        };
+    }
+    #endif
     class slice {
     public:
     using T = ciT<cT>;
