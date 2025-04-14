@@ -1,6 +1,7 @@
 #pragma once
 
 #include <initializer_list>
+#include <type_traits>
 #include <exception>
 #include <optional>
 #include <iterator>
@@ -32,7 +33,7 @@ namespace gtd {
 namespace gtd {
     template <typename cT>
     class index {
-    using T = ciT<cT>;
+    using T = gtd::ciT<cT>;
     public:
         T operator()(const cT& container, std::size_t indx) const {
             return container[indx];
@@ -48,7 +49,7 @@ namespace gtd {
     class slice_template {
     public:
         slice_template() {}
-        explicit slice_template(int64_t _index) : start{_index}, end{_index+1ll}, step{1ll} {}
+        slice_template(int64_t _index) : start{_index}, end{_index+1ll}, step{1ll} {}
         slice_template(std::optional<int64_t> _start, std::optional<int64_t> _end, std::optional<int64_t> _step) 
             : start{_start}, end{_end}, step{_step} {}
         std::optional<int64_t> start{};
@@ -101,11 +102,22 @@ namespace gtd {
     #endif
     class slice {
     public:
-    using T = ciT<cT>;
+    using T = gtd::ciT<cT>;
     using rT = std::vector<T>;
         slice(cT& _container) : container{_container} {}
         cT& container{};
-        rT operator()(gtd::slice_template templ) {
+        rT operator()(std::optional<int64_t> _start, std::optional<int64_t> _end, std::optional<int64_t> _step) {
+            rT new_vec{};
+            std::size_t size = gtd::size<cT>{}(container);
+            auto [start,end,step] = gtd::slice_template{_start,_end,_step}.get_from_size(size);
+            go( new_vec,
+                container.cbegin()+start,container.cbegin()+end,step,
+                (step < 0 ? [](cT_c_iter a, cT_c_iter b)->bool{ return a > b; } : [](cT_c_iter a, cT_c_iter b)->bool{ return a < b; })
+            );
+            return new_vec;
+        }
+        template <typename GTD_SliceTemplate, typename = std::enable_if_t<std::is_same_v<GTD_SliceTemplate,gtd::slice_template>>>
+        rT operator()(GTD_SliceTemplate templ) {
             rT new_vec{};
             std::size_t size = gtd::size<cT>{}(container);
             auto [start,end,step] = templ.get_from_size(size);
