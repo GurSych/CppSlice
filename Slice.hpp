@@ -84,7 +84,7 @@ namespace gtd {
         }
     };
     template <typename cT>
-    #if __cplusplus >= 202002L
+    #if defined(__cplusplus) && __cplusplus >= 202002L
     requires requires(cT container) {
         typename cT::const_iterator;
         typename cT::const_reverse_iterator;
